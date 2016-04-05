@@ -1,0 +1,8 @@
+{
+  "name": "Simple Survey App",
+  "description": "A Simple Survey App Using MEAN Stack",
+  "repository": "https://github.com",
+  "logo": "",
+  "keywords": ["node", "express", "survey"],
+  "image": ""
+}
