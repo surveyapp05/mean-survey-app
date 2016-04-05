@@ -18,8 +18,13 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
         })
 
         .when('/dash', {
-            templateUrl : 'app/components/home/dash-view.html',
+            templateUrl : 'app/components/dash/dash-view.html',
             controller  : 'DashCtrl'
+        })
+
+        .when('/create-survey', {
+            templateUrl : 'app/components/dash/create-survey-view.html',
+            controller  : 'CreateSurveyCtrl'
         })
 
         .otherwise({
