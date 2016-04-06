@@ -1,0 +1,93 @@
+<div head></div>
+<div navi></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 ">
+            <h3>{{singleSurvey.data.surveyName}}</h3>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Take The Survey</h3>
+            <hr>
+            <div>
+                <h4>Survey Title: {{singleSurvey.data.surveyName}}</h4>
+                <div ng-repeat="survey in singleSurvey">
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'text' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <input ng-model="surveyInputData[$index]" class="form-control" type="text">
+                    </div>
+                    <br>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'textarea' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <textarea ng-model="surveyInputData[$index]" class="form-control"></textarea>
+                    </div>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'radio' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <div ng-repeat="ele in singleSurvey.data.formData[$index]">
+                            <div class="checkbox" ng-repeat="options in ele.data"
+                                <label>
+                                    <input type="radio" value="{{options}}" ng-model="surveyInputData[$parent.$parent.$index]" name="optionsRadios{{$parent.$parent.$index}}" value="">
+                                    {{options}}
+                                </label>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'checkbox' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <div ng-repeat="ele in singleSurvey.data.formData[$index]">
+                            <div class="checkbox" ng-repeat="options in ele.data">
+                                <label>
+                                    <input ng-true-value="'{{options}}'" ng-model="surveyInputData[$parent.$parent.$index]" type="checkbox" value="{{options}}">
+                                    {{options}}
+                                </label>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'select' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <div >
+                            <div >
+                            <select ng-model="surveyInputData[$parent.$index]" class="form-control">
+                                <option ng-repeat="options in singleSurvey.data.formData[$index].options.data" value="{{options}}">{{options}}</option>
+                             </select>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+
+                <hr>
+                <button id="submit-survey-button" ng-click="submitSurvey()" class="btn btn-success">Submit Survey</button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3>Results</h3>
+            <hr>
+            <p>Fill in the survey to see the results!</p>
+            <div ng-repeat="(label, val) in surveyResults">
+                <div class="row">
+                    <div class="col-md-4">{{label}}</div>
+                    <div class="col-md-6">
+                        <div class="progress">
+                          <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{(val / surveyResultsMax) * 100}}%;">
+                            <span class="sr-only">60% Complete</span>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">{{val}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

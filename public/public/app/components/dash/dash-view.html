@@ -1,0 +1,35 @@
+<div head></div>
+<div navi></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 ">
+            <h3>Welcome {{user.username}}</h3>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 ">
+            <h3>Actions</h3>
+            <hr>
+            <a href="/create-survey" class="btn btn-success">Create New Survey</a>
+        </div>
+        <div class="col-md-6 ">
+            <h3>Your Surveys</h3>
+            <hr>
+            <div class="row">
+                <div ng-repeat="surveys in user.surveyData">
+                    <div ng-if="$index % 3 == 0" class="clearfix"></div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="thumbnail">
+                            <div ng-click="visitSurveyPage(surveys._id)" class="caption">
+                                <p>{{surveys.surveyName}}</p>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
