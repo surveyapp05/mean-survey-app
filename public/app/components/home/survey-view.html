@@ -58,15 +58,13 @@
                         <p>{{singleSurvey.data.formData[$index].label}}</p>
                         <div >
                             <div >
-                            <select class="form-control">
-                                <option ng-repeat="options in singleSurvey.data.formData[$index].options.data">{{options}}</option>
+                            <select ng-model="surveyInputData[$parent.$index]" class="form-control">
+                                <option ng-repeat="options in singleSurvey.data.formData[$index].options.data" value="{{options}}">{{options}}</option>
                              </select>
                             </div>
                         </div>
                         <br>
                     </div>
-
-
                 </div>
 
                 <hr>
