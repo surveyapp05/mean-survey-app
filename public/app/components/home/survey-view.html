@@ -15,7 +15,6 @@
             <hr>
             <div>
                 <h4>Survey Title: {{singleSurvey.data.surveyName}}</h4>
-                <br>
                 <div ng-repeat="survey in singleSurvey">
 
                     <div ng-if="singleSurvey.data.formData[$index].type == 'text' ">
@@ -34,7 +33,6 @@
                         <div ng-repeat="ele in singleSurvey.data.formData[$index]">
                             <div class="checkbox" ng-repeat="options in ele.data"
                                 <label>
-
                                     <input type="radio" value="{{options}}" ng-model="surveyInputData[$parent.$parent.$index]" name="optionsRadios{{$parent.$parent.$index}}" value="">
                                     {{options}}
                                 </label>
@@ -72,12 +70,11 @@
                 </div>
 
                 <hr>
-                <button ng-click="submitSurvey()" class="btn btn-success">Submit Survey</button>
+                <button id="submit-survey-button" ng-click="submitSurvey()" class="btn btn-success">Submit Survey</button>
             </div>
         </div>
         <div class="col-md-6">
             <h3>Results</h3>
-            {{surveyInputData}}
             <hr>
             <p>Fill in the survey to see the results!</p>
             <div ng-repeat="(label, val) in surveyResults">

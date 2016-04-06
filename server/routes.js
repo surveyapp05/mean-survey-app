@@ -66,13 +66,14 @@ module.exports = function(app, User, Survey) {
 		survey.results = {};
 
         // Save to mongo
-		survey.save(function(err, user){
+		survey.save(function(err, survey){
             if(err) {
                 console.log(err);
             } else {
                 return res.json({
                     success: true,
-                    message: "Survey Published!"
+                    message: "Survey Published!",
+					data: survey
                 });
             }
 		})

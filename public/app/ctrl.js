@@ -1,9 +1,12 @@
 // Ctrl For Home
-app.controller('HomeCtrl', function($scope, $http) {
+app.controller('HomeCtrl', function($scope, $http, $location) {
     $scope.allSurveys = '';
     $http.post('/api/getAllSurveys').success(function(response){
         $scope.allSurveys = response.data;
     });
+    $scope.visitSurveyPage = function(surveyID) {
+        $location.path('/survey-view/').search({id: surveyID});
+    }
 })
 
 app.controller('NaviCtrl', function($scope, $http, user, sessionValues, $location, $localStorage) {
@@ -14,10 +17,6 @@ app.controller('NaviCtrl', function($scope, $http, user, sessionValues, $locatio
         user.username = $scope.$storage.user.username;
         user.password = $scope.$storage.user.password;
     }
-
-
-
-    console.log(sessionValues.loggedIn);
 
 
 
@@ -107,6 +106,7 @@ app.controller('ViewSurveyCtrl', function($scope, $location, $http) {
     })
 
     $scope.submitSurvey = function() {
+        $('#submit-survey-button').attr('disabled', 'disabled');
         console.log($scope.surveyInputData);
         $http.post('/api/saveSurveyResults', {'surveyID': $scope.singleSurvey.data._id, 'surveyData': $scope.surveyInputData}).success(function(response){
             if(response.success == true) {
@@ -166,7 +166,8 @@ app.controller('CreateSurveyCtrl', function($scope, sessionValues, $location, us
             'userID': $scope.$storage.user._id,
             'surveyName': $scope.surveyName
         }).success(function(status) {
-
+            alert(status.message);
+            $location.path('/survey-view/').search({id: status.data._id});
         })
     }
 })
