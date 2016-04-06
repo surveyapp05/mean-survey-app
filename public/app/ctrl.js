@@ -1,6 +1,9 @@
 // Ctrl For Home
-app.controller('HomeCtrl', function($scope) {
-    //
+app.controller('HomeCtrl', function($scope, $http) {
+    $scope.allSurveys = '';
+    $http.post('/api/getAllSurveys').success(function(response){
+        $scope.allSurveys = response.data;
+    });
 })
 
 app.controller('NaviCtrl', function($scope, $http, user, sessionValues, $location, $localStorage) {
@@ -12,20 +15,16 @@ app.controller('NaviCtrl', function($scope, $http, user, sessionValues, $locatio
         user.password = $scope.$storage.user.password;
     }
 
-    $http.post('/api/login-auth', user).success(function(status){
-        if(status !== 0) {
-            sessionValues.loggedIn = true;
-        } else {
-            sessionValues.loggedIn = false;
-            $location.path('/');
-        }
-    });
+
+
+    console.log(sessionValues.loggedIn);
 
 
 
     $scope.logout = function() {
         $http.post('/api/logout').success(function(){
             sessionValues.loggedIn = false;
+            delete $scope.$storage;
             alert('Logged Out!');
             $location.path('/');
         });
@@ -74,6 +73,16 @@ app.controller('DashCtrl', function($scope, sessionValues, $location, user, $loc
     $scope.user = user;
     $scope.$storage = $localStorage;
 
+    $http.post('/api/login-auth', user).success(function(status){
+        console.log(status);
+        if(status == 0) {
+            sessionValues.loggedIn = false;
+            $location.path('/');
+        } else {
+            sessionValues.loggedIn = true;
+        }
+    });
+
     $http.post('/api/getUsersSurveys', {userID: $scope.$storage.user._id}).success(function(status) {
         $scope.user.surveyData = status.data;
         console.log($scope.user.surveyData);
@@ -87,11 +96,28 @@ app.controller('DashCtrl', function($scope, sessionValues, $location, user, $loc
 
 app.controller('ViewSurveyCtrl', function($scope, $location, $http) {
     $scope.singleSurvey = '';
+    $scope.surveyInputData = {};
+    $scope.surveyResults = {};
+    $scope.surveyResultsMax = 0;
+    $scope.surveyResultsMin = 0;
 
     $scope.surveyID = $location.search().id;
     $http.post('/api/getSingleSurvey', {'surveyID': $scope.surveyID}).success(function(response){
         $scope.singleSurvey = response;
     })
+
+    $scope.submitSurvey = function() {
+        console.log($scope.surveyInputData);
+        $http.post('/api/saveSurveyResults', {'surveyID': $scope.singleSurvey.data._id, 'surveyData': $scope.surveyInputData}).success(function(response){
+            if(response.success == true) {
+                alert(response.message);
+                $scope.surveyResults = response.data;
+                var arr = Object.keys( $scope.surveyResults ).map(function ( key ) { return $scope.surveyResults[key]; });
+                $scope.surveyResultsMin = Math.min.apply( null, arr );
+                $scope.surveyResultsMax = Math.max.apply( null, arr );
+            }
+        })
+    }
 })
 
 app.controller('CreateSurveyCtrl', function($scope, sessionValues, $location, user, $http, $localStorage) {

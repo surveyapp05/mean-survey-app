@@ -50,7 +50,7 @@ module.exports = function(app, User, Survey) {
 
 	// logs the user out by deleting the cookie
 	app.post("/api/logout", function(req, res){
-		req.logOut()
+		req.logOut();
 		res.json(req.user);
 	});
 
@@ -63,6 +63,7 @@ module.exports = function(app, User, Survey) {
 		survey.userID = req.body.userID;
 		survey.formData = req.body.elements;
 		survey.surveyName = req.body.surveyName;
+		survey.results = {};
 
         // Save to mongo
 		survey.save(function(err, user){
@@ -74,6 +75,18 @@ module.exports = function(app, User, Survey) {
                     message: "Survey Published!"
                 });
             }
+		})
+	})
+
+	app.post("/api/getAllSurveys", function(req, res) {
+		Survey.find({}, function(err, surveys){
+			if(err) {console.log(err);} else {
+				return res.json({
+                    success: true,
+                    message: "Got Surveys",
+					data: surveys
+                });
+			}
 		})
 	})
 
@@ -89,17 +102,55 @@ module.exports = function(app, User, Survey) {
 		})
 	})
 
-app.post("/api/getSingleSurvey", function(req, res) {
-	Survey.findOne({_id: req.body.surveyID}, function(err, survey){
-		if(err) {console.log(err);} else {
-			return res.json({
-				success: true,
-				message: "Got Survey",
-				data: survey
-			});
-		}
+	app.post("/api/getSingleSurvey", function(req, res) {
+		Survey.findOne({_id: req.body.surveyID}, function(err, survey){
+			if(err) {console.log(err);} else {
+				return res.json({
+					success: true,
+					message: "Got Survey",
+					data: survey
+				});
+			}
+		})
 	})
-})
+
+	app.post("/api/saveSurveyResults", function(req, res) {
+		console.log(req.body.surveyData);
+		Survey.findOne({_id: req.body.surveyID}, function(err, survey){
+			//survey.results = survey.results || {};
+			if(err) {console.log(err);} else {
+				if(!survey.results) {
+					survey.results = {};
+					Object.keys(req.body.surveyData).forEach(function(key, val) {
+					  	survey.results[req.body.surveyData[key]] = 1;
+					});
+				} else {
+					Object.keys(req.body.surveyData).forEach(function(key, val) {
+						if(survey.results[req.body.surveyData[key]]) {
+							var voteNumber = survey.results[req.body.surveyData[key]];
+							survey.results[req.body.surveyData[key]] = voteNumber + 1;
+						} else {
+							survey.results[req.body.surveyData[key]] = 1;
+						}
+					});
+				}
+				console.log(survey);
+				Survey.update({_id: req.body.surveyID}, {
+				    results: survey.results
+				}, function(err, numberAffected, rawResponse) {
+					if(err) {
+ 					   console.log(err);
+ 				   } else {
+ 					   return res.json({
+ 						   success: true,
+ 						   message: "Survey Saved!",
+ 						   data: survey.results
+ 					   });
+ 				   }
+				})
+			}
+		})
+	})
 
 
 
