@@ -1,0 +1,83 @@
+<div head></div>
+<div navi></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 ">
+            <h3>{{singleSurvey.data.surveyName}}</h3>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Take The Survey</h3>
+            <hr>
+            <div>
+                <h4>Survey Title: {{singleSurvey.data.surveyName}}</h4>
+                <br>
+                <div ng-repeat="survey in singleSurvey">
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'text' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <input class="form-control" type="text">
+                    </div>
+                    <br>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'textarea' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <textarea class="form-control"></textarea>
+                    </div>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'radio' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <div ng-repeat="ele in singleSurvey.data.formData[$index]">
+                            <div class="checkbox" ng-repeat="options in ele.data"
+                                <label>
+                                    <input type="radio" name="optionsRadios{{$parent.$parent.$index}}" value="">
+                                    {{options}}
+                                </label>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'checkbox' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <div ng-repeat="ele in singleSurvey.data.formData[$index]">
+                            <div class="checkbox" ng-repeat="options in ele.data">
+                                <label>
+                                    <input type="checkbox" name="optionsCheckboxes{{$parent.$parent.$index}}" value="">
+                                    {{options}}
+                                </label>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+
+                    <div ng-if="singleSurvey.data.formData[$index].type == 'select' ">
+                        <p>{{singleSurvey.data.formData[$index].label}}</p>
+                        <div >
+                            <div >
+                            <select class="form-control">
+                                <option ng-repeat="options in singleSurvey.data.formData[$index].options.data">{{options}}</option>
+                             </select>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+
+
+                </div>
+
+                <hr>
+                <button class="btn btn-success">Submit Survey</button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3>Results</h3>
+            <hr>
+            <p>Fill in the survey to see the results!</p>
+        </div>
+    </div>
+</div>

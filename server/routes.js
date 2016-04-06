@@ -3,28 +3,9 @@ var localStrategy = require('passport-local').Strategy;
 
 module.exports = function(app, User, Survey) {
 
-    
-
-	// Passport.js login route (passport.authenticate is a built in passport.js function it checks session id)
-    app.post("/api/login", passport.authenticate('local'), function(req, res){
-    	res.json(req.user);
-	});
-
-	// logs the user out by deleting the cookie
-	app.post("/api/logout", function(req, res){
-		req.logOut()
-		res.json(req.user);
-	});
-
-    app.post("/api/login-auth",  function(req, res) {
-        res.send(req.isAuthenticated() ? req.user : '0');
-    })
-
-
-
-    //This registers the Users
+    //This route registers the Users
 	app.post("/api/register", function(req, res){
-        // check mongo for duplicate user
+        // check mongo for duplicate user data is sent from angular post and found in the req.body
 		User.findOne({username: req.body.username}, function(err, user){
             // if user found return json object with status & message
             if(user){
@@ -44,16 +25,82 @@ module.exports = function(app, User, Survey) {
                     if(err) {
                         console.log(err)
                     } else {
-                        return res.json({
-        					success: false,
-        					message: "user registered",
-                            data: user
-        				});
+                        req.login(user, function(err){
+                            if(err) {
+                                return res.json({
+                                    success: false,
+                                    message: "Sorry you have been unable to login at this time, please try again later"
+                                });
+                            }
+                            return res.json({
+                                success: true,
+                                message: "Registered & logged in!"
+                            });
+                        });
                     }
 				});
 			}
 		});
 	});
+
+	// Passport.js login route (passport.authenticate is a built in passport.js function it checks session id)
+    app.post("/api/login", passport.authenticate('local'), function(req, res){
+    	res.json(req.user);
+	});
+
+	// logs the user out by deleting the cookie
+	app.post("/api/logout", function(req, res){
+		req.logOut()
+		res.json(req.user);
+	});
+
+    app.post("/api/login-auth",  function(req, res) {
+        res.send(req.isAuthenticated() ? req.user : '0');
+    })
+
+	app.post("/api/publish-survey", function(req, res) {
+		var survey = new Survey();
+		survey.userID = req.body.userID;
+		survey.formData = req.body.elements;
+		survey.surveyName = req.body.surveyName;
+
+        // Save to mongo
+		survey.save(function(err, user){
+            if(err) {
+                console.log(err);
+            } else {
+                return res.json({
+                    success: true,
+                    message: "Survey Published!"
+                });
+            }
+		})
+	})
+
+	app.post("/api/getUsersSurveys", function(req, res) {
+		Survey.find({userID: req.body.userID}, function(err, surveys){
+			if(err) {console.log(err);} else {
+				return res.json({
+                    success: true,
+                    message: "Got Surveys",
+					data: surveys
+                });
+			}
+		})
+	})
+
+app.post("/api/getSingleSurvey", function(req, res) {
+	Survey.findOne({_id: req.body.surveyID}, function(err, survey){
+		if(err) {console.log(err);} else {
+			return res.json({
+				success: true,
+				message: "Got Survey",
+				data: survey
+			});
+		}
+	})
+})
+
 
 
 

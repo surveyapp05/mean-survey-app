@@ -15,7 +15,7 @@ var configDB = require('./config/database.js'); // require config.js file
 mongoose.connect(configDB.url); // connect to our database
 
 // Set Port ====================================================================
-app.set('port', (process.env.PORT || 5004)); // found at http://localhost:5002
+app.set('port', (process.env.PORT || 5004)); // found at http://localhost:5004
 
 // Passport.js Values
 app.use(session({secret: 'this is the secret'}));

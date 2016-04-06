@@ -18,6 +18,18 @@
         <div class="col-md-6 ">
             <h3>Your Surveys</h3>
             <hr>
+            <div class="row">
+                <div ng-repeat="surveys in user.surveyData">
+                    <div ng-if="$index % 3 == 0" class="clearfix"></div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="thumbnail">
+                            <div ng-click="visitSurveyPage(surveys._id)" class="caption">
+                                <p>{{surveys.surveyName}}</p>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -27,6 +27,11 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
             controller  : 'CreateSurveyCtrl'
         })
 
+        .when('/survey-view', {
+            templateUrl : 'app/components/home/survey-view.html',
+            controller  : 'ViewSurveyCtrl'
+        })
+
         .otherwise({
             redirectTo: '/'
         });

@@ -10,7 +10,7 @@ app.controller('NaviCtrl', function($scope, $http, user, sessionValues, $locatio
         user.email = $scope.$storage.user.email;
         user.username = $scope.$storage.user.username;
         user.password = $scope.$storage.user.password;
-    }   
+    }
 
     $http.post('/api/login-auth', user).success(function(status){
         if(status !== 0) {
@@ -70,12 +70,34 @@ app.controller('LoginCtrl', function($scope, $http, $location, $localStorage) {
     }
 })
 
-app.controller('DashCtrl', function($scope, sessionValues, $location, user) {
+app.controller('DashCtrl', function($scope, sessionValues, $location, user, $localStorage, $http) {
     $scope.user = user;
+    $scope.$storage = $localStorage;
+
+    $http.post('/api/getUsersSurveys', {userID: $scope.$storage.user._id}).success(function(status) {
+        $scope.user.surveyData = status.data;
+        console.log($scope.user.surveyData);
+    })
+
+    $scope.visitSurveyPage = function(surveyID) {
+        $location.path('/survey-view/').search({id: surveyID});
+    }
+
 })
 
-app.controller('CreateSurveyCtrl', function($scope, sessionValues, $location, user, $http) {
-    $scope.surveyName = undefined;
+app.controller('ViewSurveyCtrl', function($scope, $location, $http) {
+    $scope.singleSurvey = '';
+
+    $scope.surveyID = $location.search().id;
+    $http.post('/api/getSingleSurvey', {'surveyID': $scope.surveyID}).success(function(response){
+        $scope.singleSurvey = response;
+    })
+})
+
+app.controller('CreateSurveyCtrl', function($scope, sessionValues, $location, user, $http, $localStorage) {
+    $scope.$storage = $localStorage;
+    $scope.user = user;
+    $scope.surveyName = '';
     $scope.textLabel = '';
     $scope.textAreaLabel = '';
     $scope.radioButtonLabel = '';
@@ -113,8 +135,11 @@ app.controller('CreateSurveyCtrl', function($scope, sessionValues, $location, us
     }
 
     $scope.publishSurvey = function() {
-        $http.post('/api/publish-survey', $scope.surveyElements)
-        .success(function(status){
+        $http.post('/api/publish-survey', {
+            'elements': $scope.surveyElements,
+            'userID': $scope.$storage.user._id,
+            'surveyName': $scope.surveyName
+        }).success(function(status) {
 
         })
     }

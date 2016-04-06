@@ -1,8 +1,10 @@
 app.factory("user", function(){
     return {
+        mongoID: '',
         username: '',
         email: '',
-        password: ''
+        password: '',
+        surveyData: {}
     };
 });
 
