@@ -89,19 +89,24 @@ app.controller('DashCtrl', function($scope, sessionValues, $location, user, $loc
 
     // sends to node the user details, passport.js checks if they should be logged in
     $http.post('/api/login-auth', user).success(function(status){
-        console.log(status);
+        // add the mongo user records to the angular service
+        $scope.user.mongoID = status._id;
+        $scope.user.username = status.username;
+
         if(status == 0) {
             sessionValues.loggedIn = false;
             $location.path('/');
         } else {
             sessionValues.loggedIn = true;
+
+            // send to node user id to pull back their surveys
+            $http.post('/api/getUsersSurveys', {userID: user.mongoID}).success(function(status) {
+                $scope.user.surveyData = status.data;
+            })
         }
     });
 
-    // send to node user id to pull back their surveys
-    $http.post('/api/getUsersSurveys', {userID: $scope.$storage.user._id}).success(function(status) {
-        $scope.user.surveyData = status.data;
-    })
+
 
     // if they click a user dash page survey, take them to its page
     $scope.visitSurveyPage = function(surveyID) {
