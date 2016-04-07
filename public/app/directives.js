@@ -1,3 +1,5 @@
+// directives are like include files, refrenced like this <div head></div> <-- head.html will show in here
+
 // Directives Path
 var dir = 'app/components/';
 

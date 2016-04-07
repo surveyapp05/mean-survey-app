@@ -1,4 +1,4 @@
-// Include modules
+// Include node modules
 var express         = require('express');
 var app             = express();
 var mongoose        = require('mongoose');
@@ -7,17 +7,18 @@ var cookieParser    = require('cookie-parser');
 var session         = require ('express-session');
 var passport        = require('passport');
 
+// Include Database model instances
 var User = require(__dirname + '/server/models/user');
 var Survey = require(__dirname + '/server/models/survey');
 
-// DB configuration ============================================================
+// DB configuration
 var configDB = require('./config/database.js'); // require config.js file
 mongoose.connect(configDB.url); // connect to our database
 
-// Set Port ====================================================================
+// Set Port
 app.set('port', (process.env.PORT || 5004)); // found at http://localhost:5004
 
-// Passport.js Values
+// Set up Passport.js
 app.use(session({secret: 'this is the secret'}));
 app.use(cookieParser('this is the secret'));
 app.use(passport.initialize());

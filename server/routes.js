@@ -1,3 +1,4 @@
+// Include passport for the route controllers
 var passport = require('passport');
 var localStrategy = require('passport-local').Strategy;
 
@@ -25,7 +26,9 @@ module.exports = function(app, User, Survey) {
                     if(err) {
                         console.log(err)
                     } else {
+						// User is register so log them in (built in passport function)
                         req.login(user, function(err){
+							// Send status and data back to angular
                             if(err) {
                                 return res.json({
                                     success: false,
@@ -48,17 +51,20 @@ module.exports = function(app, User, Survey) {
     	res.json(req.user);
 	});
 
-	// logs the user out by deleting the cookie
+	// logs the user out by deleting the cookie (built in passport)
 	app.post("/api/logout", function(req, res){
 		req.logOut();
 		res.json(req.user);
 	});
 
+	// checks if user is logged in with correct session ID
     app.post("/api/login-auth",  function(req, res) {
         res.send(req.isAuthenticated() ? req.user : '0');
     })
 
+	// Save a survey to mongodb
 	app.post("/api/publish-survey", function(req, res) {
+		// New survey model
 		var survey = new Survey();
 		survey.userID = req.body.userID;
 		survey.formData = req.body.elements;
@@ -79,7 +85,9 @@ module.exports = function(app, User, Survey) {
 		})
 	})
 
+	// Find all surveys to display on home page
 	app.post("/api/getAllSurveys", function(req, res) {
+		// find is empty coz we want all
 		Survey.find({}, function(err, surveys){
 			if(err) {console.log(err);} else {
 				return res.json({
@@ -91,7 +99,9 @@ module.exports = function(app, User, Survey) {
 		})
 	})
 
+	// Get user surveys to display on their dash page
 	app.post("/api/getUsersSurveys", function(req, res) {
+		// passing the user id get users created surveys
 		Survey.find({userID: req.body.userID}, function(err, surveys){
 			if(err) {console.log(err);} else {
 				return res.json({
@@ -103,7 +113,9 @@ module.exports = function(app, User, Survey) {
 		})
 	})
 
+	// get a single survey to display on its view page
 	app.post("/api/getSingleSurvey", function(req, res) {
+		// passing survey id
 		Survey.findOne({_id: req.body.surveyID}, function(err, survey){
 			if(err) {console.log(err);} else {
 				return res.json({
@@ -115,27 +127,38 @@ module.exports = function(app, User, Survey) {
 		})
 	})
 
+	// save a visiters survey answers
 	app.post("/api/saveSurveyResults", function(req, res) {
-		console.log(req.body.surveyData);
+		// find relevant survey
 		Survey.findOne({_id: req.body.surveyID}, function(err, survey){
-			//survey.results = survey.results || {};
 			if(err) {console.log(err);} else {
+				// if no one has submitted answers
 				if(!survey.results) {
+					// create new result object
 					survey.results = {};
+					// loop over the survey answers
 					Object.keys(req.body.surveyData).forEach(function(key, val) {
+						// add to the total number of votes for that option
 					  	survey.results[req.body.surveyData[key]] = 1;
 					});
+					// if already has answers
 				} else {
+					// loop over the data
 					Object.keys(req.body.surveyData).forEach(function(key, val) {
+						// if this specific answer has votes
 						if(survey.results[req.body.surveyData[key]]) {
+							// get the existing votes
 							var voteNumber = survey.results[req.body.surveyData[key]];
+							// add 1 votes to it
 							survey.results[req.body.surveyData[key]] = voteNumber + 1;
+							// else it has no votes already
 						} else {
+							// then add just 1
 							survey.results[req.body.surveyData[key]] = 1;
 						}
 					});
 				}
-				console.log(survey);
+				// update the survey.results with the new values
 				Survey.update({_id: req.body.surveyID}, {
 				    results: survey.results
 				}, function(err, numberAffected, rawResponse) {
@@ -153,9 +176,7 @@ module.exports = function(app, User, Survey) {
 		})
 	})
 
-
-
-
+	// get all request and show the angular index.ejs (all client views are through this)
 	app.get('*', function(req, res) {
         res.render('pages/index');
     });

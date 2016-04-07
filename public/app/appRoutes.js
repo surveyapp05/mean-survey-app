@@ -1,5 +1,6 @@
 app.config(function($routeProvider, $locationProvider, $httpProvider) {
 
+    // add new urls here, they need a controller and template file
     $routeProvider
 
         .when('/', {
@@ -36,7 +37,7 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
             redirectTo: '/'
         });
 
-        //$httpProvider.interceptors.push("authInter");
+        // SEO friendly url option
         $locationProvider.html5Mode(true);
 
 });
